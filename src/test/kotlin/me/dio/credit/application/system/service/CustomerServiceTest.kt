@@ -15,7 +15,7 @@ import me.dio.credit.application.system.service.impl.CustomerService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.test.context.ActiveProfiles
+import org.springframework.dao.DataIntegrityViolationException
 import java.math.BigDecimal
 import java.util.*
 
@@ -36,6 +36,18 @@ class CustomerServiceTest {
     Assertions.assertThat(actual).isNotNull
     Assertions.assertThat(actual).isSameAs(fakeCustomer)
     verify(exactly = 1) { customerRepository.save(fakeCustomer) }
+  }
+
+  @Test
+  fun `exception to create same customer`(){
+    //given
+    val exceptionMessage = "CPF already used"
+    //when
+    val exception = DataIntegrityViolationException(exceptionMessage)
+    //then
+    Assertions.assertThatExceptionOfType(DataIntegrityViolationException::class.java).isThrownBy {
+      throw exception
+    }
   }
 
   @Test
@@ -82,7 +94,7 @@ class CustomerServiceTest {
 
 
   companion object {
-    fun buildCustomer(
+      fun buildCustomer(
       firstName: String = "Cami",
       lastName: String = "Cavalcante",
       cpf: String = "28475934625",

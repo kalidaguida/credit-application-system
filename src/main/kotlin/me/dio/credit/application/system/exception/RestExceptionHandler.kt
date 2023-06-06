@@ -33,6 +33,18 @@ class RestExceptionHandler {
 
   @ExceptionHandler(DataAccessException::class)
   fun handlerValidException(ex: DataAccessException): ResponseEntity<ExceptionDetails> {
+    if(ex.message.toString().contains("PUBLIC.UC_CUSTOMER_CPF_INDEX_A")){
+      return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(
+          ExceptionDetails(
+            title = "Conflict! User already registered",
+            timestamp = LocalDateTime.now(),
+            status = HttpStatus.CONFLICT.value(),
+            exception = ex.javaClass.toString(),
+            details = mutableMapOf(ex.cause.toString() to "CPF already used")
+          )
+        )
+    } else {
     return ResponseEntity.status(HttpStatus.CONFLICT)
       .body(
         ExceptionDetails(
@@ -43,15 +55,7 @@ class RestExceptionHandler {
           details = mutableMapOf(ex.cause.toString() to ex.message)
         )
       )
-    /*return ResponseEntity(
-      ExceptionDetails(
-        title = "Bad Request! Consult the documentation",
-        timestamp = LocalDateTime.now(),
-        status = HttpStatus.CONFLICT.value(),
-        exception = ex.javaClass.toString(),
-        details = mutableMapOf(ex.cause.toString() to ex.message)
-      ), HttpStatus.CONFLICT
-    )*/
+    }
   }
 
   @ExceptionHandler(BusinessException::class)
